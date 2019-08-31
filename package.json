@@ -1,0 +1,45 @@
+{
+  "name": "@phnq/i18n",
+  "version": "1.0.0",
+  "description": "Simple React util for Internationalization/Localization",
+  "main": "index.js",
+  "scripts": {
+    "preinstall": "mkdir -p node_modules; touch node_modules/.nosync",
+    "dist": "tsc",
+    "postdist": "ts-node scripts/postdist",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "release:patch": "npm version patch; git push; npm run dist; cd dist; npm publish",
+    "release:minor": "npm version minor; git push; npm run dist; cd dist; npm publish"
+  },
+  "author": "Patrick Gostovic",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pgostovic/i18n.git"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^4.1.0",
+    "@testing-library/react": "^9.1.3",
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.3",
+    "@types/react": "^16.9.2",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
+    "eslint": "^6.2.2",
+    "eslint-config-prettier": "^6.1.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-react": "^7.14.3",
+    "eslint-plugin-simple-import-sort": "^4.0.0",
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
+    "react-dom": "^16.9.0",
+    "rimraf": "^3.0.0",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.6.2"
+  },
+  "dependencies": {
+    "react": "^16.9.0"
+  }
+}
