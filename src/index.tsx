@@ -35,6 +35,7 @@ export const setDefaultLanguages = (codes: readonly string[]) => {
 
 export function i18n(key: string, params?: Params): string | Array<string | JSX.Element>;
 export function i18n(code: string | string[], key: string, params?: Params): string | Array<string | JSX.Element>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function i18n(...args: any[]): string | Array<string | JSX.Element> {
   let codes: readonly string[];
   let key: string;
@@ -111,6 +112,7 @@ const subParams = (key: string, text?: string, params?: Params): string | Array<
         }
       } else {
         const val = params[param];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (typeof val === 'object' && (val as any).type) {
           comps.push(<Fragment key={param}>{val as JSX.Element}</Fragment>);
           hasElements = true;
