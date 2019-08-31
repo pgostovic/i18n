@@ -3,7 +3,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { addL10n, I18n, i18n, setDefaultLanguages, setTestMode } from '..';
+import { addL10n, I18n, i18n, i18ns, i18nx, setDefaultLanguages, setTestMode } from '..';
 
 addL10n('en', {
   'big-thing': 'The thing is big',
@@ -82,7 +82,7 @@ describe('i18n', () => {
     setDefaultLanguages(['fr']);
     const result = render(
       <div>
-        <div data-testid="result">{i18n('big-thing')}</div>
+        <div data-testid="result">{i18nx('big-thing')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(fr):big-thing]');
@@ -92,7 +92,7 @@ describe('i18n', () => {
     setTestMode(true);
     const result = render(
       <div>
-        <div data-testid="result1">{i18n('big-thing')}</div>
+        <div data-testid="result1">{i18ns('big-thing')}</div>
         <div data-testid="result2">{i18n('func-big-thing', { quote: text => `<<<${text}>>>` })}</div>
       </div>,
     );

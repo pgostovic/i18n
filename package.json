@@ -7,6 +7,7 @@
     "preinstall": "mkdir -p node_modules; touch node_modules/.nosync",
     "dist": "tsc",
     "postdist": "ts-node scripts/postdist",
+    "clean": "rimraf dist",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "release:patch": "npm version patch; git push; npm run dist; cd dist; npm publish",

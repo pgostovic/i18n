@@ -33,10 +33,10 @@ export const setDefaultLanguages = (codes: readonly string[]) => {
   defaultCodes = codes;
 };
 
-export function i18n(key: string, params?: Params): string | Array<string | JSX.Element>;
-export function i18n(code: string | string[], key: string, params?: Params): string | Array<string | JSX.Element>;
+export function i18n(key: string, params?: Params): string | JSX.Element;
+export function i18n(code: string | string[], key: string, params?: Params): string | JSX.Element;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function i18n(...args: any[]): string | Array<string | JSX.Element> {
+export function i18n(...args: any[]): string | JSX.Element {
   let codes: readonly string[];
   let key: string;
   let params: Params;
@@ -60,6 +60,7 @@ export function i18n(...args: any[]): string | Array<string | JSX.Element> {
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         return subParams(key, l10n[key], params);
       } catch (err) {
+        let hasElements = false;
         const prefix = isTestMode ? 'TEST' : `I18N-MISSING(${code})`;
         const comps: Array<string | JSX.Element> = [`[${prefix}:${key}]`];
         if (params) {
@@ -67,10 +68,11 @@ export function i18n(...args: any[]): string | Array<string | JSX.Element> {
             const p = params[k];
             if (typeof p === 'function') {
               comps.push(<Fragment key={k}>{p(`[${prefix}:${key}--${k}]`)}</Fragment>);
+              hasElements = true;
             }
           });
         }
-        return comps;
+        return hasElements ? <>{comps}</> : comps.join('');
       }
     }
   }
@@ -81,7 +83,7 @@ export function i18n(...args: any[]): string | Array<string | JSX.Element> {
 const PARAMS_REGEX = /\{([^}]+)}/g;
 const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
 
-const subParams = (key: string, text?: string, params?: Params): string | Array<string | JSX.Element> => {
+const subParams = (key: string, text?: string, params?: Params): string | JSX.Element => {
   if (!text || isTestMode) {
     throw new Error('missing asset or test env');
   }
@@ -126,7 +128,7 @@ const subParams = (key: string, text?: string, params?: Params): string | Array<
       m = PARAMS_REGEX.exec(text);
     }
     comps.push(text.substring(i));
-    return hasElements ? comps : comps.join('');
+    return hasElements ? <>{comps}</> : comps.join('');
   }
 
   return text;
@@ -139,3 +141,6 @@ interface Props {
 }
 
 export const I18n: FC<Props> = ({ name, children, params }) => <>{i18n(name, { children, ...params })}</>;
+
+export const i18nx = (...args: any[]): JSX.Element => i18n(args[0], ...args.slice(1)) as JSX.Element;
+export const i18ns = (...args: any[]): string => i18n(args[0], ...args.slice(1)) as string;
