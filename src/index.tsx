@@ -1,4 +1,7 @@
+import { createLogger } from '@phnq/log';
 import React, { FC, Fragment, ReactNode } from 'react';
+
+const log = createLogger('@phnq/log');
 
 let isTestMode = false;
 
@@ -16,9 +19,15 @@ export interface Params {
   [key: string]: string | number | FuncParam | ReactNode;
 }
 
+let defaultCode: string | undefined = undefined;
 const l10ns = new Map<string, L10n>();
 
-export const addL10n = (code: string, l10n: L10n) => {
+export const addL10n = (code: string, l10n: L10n, isDefault = false) => {
+  if (isDefault) {
+    log.warn(`There was already a default L10n code set; ${code} is now the default.`);
+    defaultCode = code;
+  }
+
   const existingL10n = l10ns.get(code);
   if (existingL10n) {
     Object.assign(existingL10n, l10n);
@@ -30,7 +39,7 @@ export const addL10n = (code: string, l10n: L10n) => {
 let defaultCodes: readonly string[] = ['en'];
 
 export const setDefaultLanguages = (codes: readonly string[]) => {
-  defaultCodes = codes;
+  defaultCodes = [...new Set(codes.concat(codes.map(c => c.split('-')[0])))];
 };
 
 export function i18n(key: string, params?: Params): string | JSX.Element;
@@ -50,6 +59,14 @@ export function i18n(...args: any[]): string | JSX.Element {
   } else {
     [key, params] = args;
     codes = defaultCodes;
+  }
+
+  if (l10ns.size === 0) {
+    log.warn('No L10n packs found.');
+  } else if (defaultCode) {
+    codes = [...new Set(codes.concat(defaultCode))];
+  } else {
+    codes = [...new Set(codes.concat(l10ns.keys().next().value))];
   }
 
   // eslint-disable-next-line no-restricted-syntax

@@ -13,6 +13,13 @@ addL10n('en', {
   'with-children': 'This one has {children} dude',
 });
 
+addL10n('fr', {
+  'big-thing': 'Le chose est grand',
+  'dynamic-big-thing': 'Le {thing} est grand',
+  'dynamic-big-obj': 'Le {obj} est grand',
+  'func-big-thing': 'Le {quote(choses)} est grand',
+});
+
 describe('i18n', () => {
   beforeEach(() => {
     setTestMode(false);
@@ -78,14 +85,24 @@ describe('i18n', () => {
     expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(en):not-there]');
   });
 
-  it('inserts a missing asset error when L10n is not found', () => {
-    setDefaultLanguages(['fr']);
+  it('falls back to the default L10n pack when the specified one is not found', () => {
+    setDefaultLanguages(['pt']);
     const result = render(
       <div>
         <div data-testid="result">{i18nx('big-thing')}</div>
       </div>,
     );
-    expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(fr):big-thing]');
+    expect(result.getByTestId('result').textContent).toBe('The thing is big');
+  });
+
+  it('inserts a missing asset error when the key is not found but the L10n pack exists', () => {
+    setDefaultLanguages(['fr']);
+    const result = render(
+      <div>
+        <div data-testid="result">{i18n('with-children')}</div>
+      </div>,
+    );
+    expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(fr):with-children]');
   });
 
   it('inserts a test string when test mode is on', () => {
