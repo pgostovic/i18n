@@ -12,6 +12,7 @@ addL10n('en', {
   'func-big-thing': 'The {quote(nice car)} is big',
   'with-children': 'This one has {children} dude',
   'multiple-params': 'My name is {name} and I am {age} years old',
+  'common.dropdown.selectedFraction': '({numerator}/{denominator} selected)',
 });
 
 addL10n('fr', {
@@ -131,5 +132,21 @@ describe('i18n', () => {
     expect(i18ns('multiple-params', { name: 'Patrick', age: 0 })).toBe('My name is Patrick and I am 0 years old');
     expect(i18ns('multiple-params', { name: 'Patrick', age: NaN })).toBe('My name is Patrick and I am NaN years old');
     expect(i18ns('multiple-params', { name: 'Patrick', age: 0 / 0 })).toBe('My name is Patrick and I am NaN years old');
+  });
+
+  it('should work properly for various combinations of "blank" parameters', () => {
+    expect(i18ns('common.dropdown.selectedFraction')).toBe('(/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: 5 })).toBe('(5/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { denominator: 7 })).toBe('(/7 selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: 5, denominator: 7 })).toBe('(5/7 selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: null })).toBe('(/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { denominator: null })).toBe('(/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: null, denominator: null })).toBe('(/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: undefined })).toBe('(/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { denominator: undefined })).toBe('(/ selected)');
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: undefined, denominator: undefined })).toBe(
+      '(/ selected)',
+    );
+    expect(i18ns('common.dropdown.selectedFraction', { numerator: 9, denominator: undefined })).toBe('(9/ selected)');
   });
 });

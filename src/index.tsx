@@ -87,14 +87,14 @@ const isReactElement = (val: any) => val && typeof val === 'object' && (val as a
 const PARAMS_REGEX = /\{([^}]+)}/g;
 const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
 
-const subParams = (key: string, text?: string, params?: Params): string | JSX.Element => {
+const subParams = (key: string, text?: string, params: Params = {}): string | JSX.Element => {
   if (!text || isTestMode) {
     throw new Error('missing asset or test env');
   }
 
   let m = PARAMS_REGEX.exec(text);
 
-  if (m && params) {
+  if (m) {
     let hasElements = false;
     const comps: Array<string | JSX.Element> = [];
     let i = 0;
