@@ -97,6 +97,9 @@ export function i18n(...args: any[]): string | JSX.Element {
   return `[I18N-MISSING(${codes.join(',')}):${key}]`;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isReactElement = (val: any) => val && typeof val === 'object' && (val as any).type;
+
 const PARAMS_REGEX = /\{([^}]+)}/g;
 const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
 
@@ -131,12 +134,18 @@ const subParams = (key: string, text?: string, params?: Params): string | JSX.El
         }
       } else {
         const val = params[param];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (typeof val === 'object' && (val as any).type) {
+        if (isReactElement(val)) {
           comps.push(<Fragment key={param}>{val as JSX.Element}</Fragment>);
           hasElements = true;
         } else {
-          comps.push(String(val));
+          switch (val) {
+            case null:
+            case undefined:
+              comps.push('');
+              break;
+            default:
+              comps.push(String(val));
+          }
         }
       }
 

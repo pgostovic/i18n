@@ -11,6 +11,7 @@ addL10n('en', {
   'dynamic-big-obj': 'The {obj} is big',
   'func-big-thing': 'The {quote(nice car)} is big',
   'with-children': 'This one has {children} dude',
+  'multiple-params': 'My name is {name} and I am {age} years old',
 });
 
 addL10n('fr', {
@@ -115,5 +116,20 @@ describe('i18n', () => {
     );
     expect(result.getByTestId('result1').textContent).toBe('[TEST:big-thing]');
     expect(result.getByTestId('result2').textContent).toBe('[TEST:func-big-thing]<<<[TEST:func-big-thing--quote]>>>');
+  });
+
+  it('should substitute null, undefined and unspecified parameters with nothing', () => {
+    expect(i18ns('multiple-params', { name: 'Patrick', age: '' })).toBe('My name is Patrick and I am  years old');
+    expect(i18ns('multiple-params', { name: 'Patrick', age: null })).toBe('My name is Patrick and I am  years old');
+    expect(i18ns('multiple-params', { name: 'Patrick', age: undefined })).toBe(
+      'My name is Patrick and I am  years old',
+    );
+    expect(i18ns('multiple-params', { name: 'Patrick' })).toBe('My name is Patrick and I am  years old');
+  });
+
+  it('should render 0 and NaN as is', () => {
+    expect(i18ns('multiple-params', { name: 'Patrick', age: 0 })).toBe('My name is Patrick and I am 0 years old');
+    expect(i18ns('multiple-params', { name: 'Patrick', age: NaN })).toBe('My name is Patrick and I am NaN years old');
+    expect(i18ns('multiple-params', { name: 'Patrick', age: 0 / 0 })).toBe('My name is Patrick and I am NaN years old');
   });
 });
