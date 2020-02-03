@@ -42,24 +42,8 @@ export const setDefaultLanguages = (codes: readonly string[]) => {
   defaultCodes = [...new Set(codes.concat(codes.map(c => c.split('-')[0])))];
 };
 
-export function i18n(key: string, params?: Params): string | JSX.Element;
-export function i18n(code: string | string[], key: string, params?: Params): string | JSX.Element;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function i18n(...args: any[]): string | JSX.Element {
-  let codes: readonly string[];
-  let key: string;
-  let params: Params;
-
-  if (typeof args[0] === 'string' && typeof args[1] === 'string') {
-    let code: string;
-    [code, key, params] = args;
-    codes = [code];
-  } else if (args[0] instanceof Array && typeof args[1] === 'string') {
-    [codes, key, params] = args;
-  } else {
-    [key, params] = args;
-    codes = defaultCodes;
-  }
+export const i18n = (key: string, params?: Params): string | JSX.Element => {
+  let codes = defaultCodes;
 
   if (l10ns.size === 0) {
     log.warn('No L10n packs found.');
@@ -95,7 +79,7 @@ export function i18n(...args: any[]): string | JSX.Element {
   }
 
   return `[I18N-MISSING(${codes.join(',')}):${key}]`;
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isReactElement = (val: any) => val && typeof val === 'object' && (val as any).type;
@@ -167,6 +151,5 @@ interface Props {
 }
 
 export const I18n: FC<Props> = ({ name, children, params }) => <>{i18n(name, { children, ...params })}</>;
-
-export const i18nx = (...args: any[]): JSX.Element => i18n(args[0], ...args.slice(1)) as JSX.Element;
-export const i18ns = (...args: any[]): string => i18n(args[0], ...args.slice(1)) as string;
+export const i18nx = (key: string, params?: Params): JSX.Element => i18n(key, params) as JSX.Element;
+export const i18ns = (key: string, params?: Params): string => i18n(key, params) as string;
