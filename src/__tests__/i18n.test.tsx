@@ -3,17 +3,22 @@ import '@testing-library/jest-dom/extend-expect';
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { addL10n, I18n, i18n, i18ns, i18nx, setDefaultLanguages, setTestMode } from '..';
+import { addL10n, I18n, i18n, i18ns, i18nx, setAlwaysFallback, setDefaultLanguages, setTestMode } from '..';
 
-addL10n('en', {
-  'big-thing': 'The thing is big',
-  'dynamic-big-thing': 'The {thing} is big',
-  'dynamic-big-obj': 'The {obj} is big',
-  'func-big-thing': 'The {quote(nice car)} is big',
-  'with-children': 'This one has {children} dude',
-  'multiple-params': 'My name is {name} and I am {age} years old',
-  'common.dropdown.selectedFraction': '({numerator}/{denominator} selected)',
-});
+addL10n(
+  'en',
+  {
+    'big-thing': 'The thing is big',
+    'dynamic-big-thing': 'The {thing} is big',
+    'dynamic-big-obj': 'The {obj} is big',
+    'func-big-thing': 'The {quote(nice car)} is big',
+    'with-children': 'This one has {children} dude',
+    'multiple-params': 'My name is {name} and I am {age} years old',
+    'common.dropdown.selectedFraction': '({numerator}/{denominator} selected)',
+    'english-only': 'Only English',
+  },
+  true,
+);
 
 addL10n('fr', {
   'big-thing': 'Le chose est grand',
@@ -148,5 +153,25 @@ describe('i18n', () => {
       '(/ selected)',
     );
     expect(i18ns('common.dropdown.selectedFraction', { numerator: 9, denominator: undefined })).toBe('(9/ selected)');
+  });
+});
+
+describe('i18n - multiple languages', () => {
+  beforeEach(() => {
+    setTestMode(false);
+    setAlwaysFallback(true);
+    setDefaultLanguages(['fr']);
+  });
+
+  afterEach(() => {
+    setAlwaysFallback(false);
+  });
+
+  it('renders the highest priority language if key exists', () => {
+    expect(i18ns('big-thing')).toBe('Le chose est grand');
+  });
+
+  it('renders a lower priority language', () => {
+    expect(i18ns('english-only')).toBe('Only English');
   });
 });

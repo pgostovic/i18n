@@ -4,9 +4,14 @@ import React, { FC, Fragment, ReactNode } from 'react';
 const log = createLogger('@phnq/log');
 
 let isTestMode = false;
+let isAlwaysFallback = false;
 
 export const setTestMode = (testMode: boolean) => {
   isTestMode = testMode;
+};
+
+export const setAlwaysFallback = (alwaysFallback: boolean) => {
+  isAlwaysFallback = alwaysFallback;
 };
 
 export interface L10n {
@@ -49,16 +54,13 @@ export const i18n = (key: string, params?: Params): string | JSX.Element => {
     log.warn('No L10n packs found.');
   } else if (defaultCode) {
     codes = [...new Set(codes.concat(defaultCode))];
-  } else {
-    codes = [...new Set(codes.concat(l10ns.keys().next().value))];
   }
 
-  // eslint-disable-next-line no-restricted-syntax
-  for (const code of codes) {
+  for (let i = 0; i < codes.length; i++) {
+    const code = codes[i];
     const l10n = l10ns.get(code);
-    if (l10n) {
+    if (l10n && (!isAlwaysFallback || l10n[key])) {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         return subParams(key, l10n[key], params);
       } catch (err) {
         let hasElements = false;
