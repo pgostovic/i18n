@@ -3,7 +3,17 @@ import '@testing-library/jest-dom/extend-expect';
 import { render } from '@testing-library/react';
 import React from 'react';
 
-import { addL10n, I18n, i18n, i18ns, i18nx, setAlwaysFallback, setDefaultLanguages, setTestMode } from '..';
+import {
+  addL10n,
+  I18n,
+  i18n,
+  I18nContext,
+  i18ns,
+  i18nx,
+  setAlwaysFallback,
+  setDefaultLanguages,
+  setTestMode,
+} from '..';
 
 addL10n(
   'en',
@@ -173,5 +183,38 @@ describe('i18n - multiple languages', () => {
 
   it('renders a lower priority language', () => {
     expect(i18ns('english-only')).toBe('Only English');
+  });
+});
+
+describe('i18n - context', () => {
+  beforeAll(() => {
+    setTestMode(false);
+    setDefaultLanguages(['fr', 'en']);
+  });
+
+  it('should render the highest priority language if no allowedLanguages set', () => {
+    const result = render(
+      <I18nContext>
+        <div>
+          <div data-testid="result1">
+            <I18n name="big-thing" />
+          </div>
+        </div>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('Le chose est grand');
+  });
+
+  it('should render the highest priority language in allowedLanguages if set', () => {
+    const result = render(
+      <I18nContext allowedLanguages={['en']}>
+        <div>
+          <div data-testid="result1">
+            <I18n name="big-thing" />
+          </div>
+        </div>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('The thing is big');
   });
 });

@@ -1,7 +1,7 @@
 import { createLogger } from '@phnq/log';
-import React, { FC, Fragment, ReactNode } from 'react';
+import React, { createContext, FC, Fragment, ReactNode } from 'react';
 
-const log = createLogger('@phnq/log');
+const log = createLogger('@phnq/i18n');
 
 let isTestMode = false;
 let isAlwaysFallback = false;
@@ -47,7 +47,8 @@ export const setDefaultLanguages = (codes: readonly string[]) => {
   defaultCodes = [...new Set(codes.concat(codes.map(c => c.split('-')[0])))];
 };
 
-export const i18n = (key: string, params?: Params): string | JSX.Element => {
+export const i18n = (key: string, params?: Params, context?: I18nContextProps): string | JSX.Element => {
+  const { allowedLanguages } = context || {};
   let codes = defaultCodes;
 
   if (l10ns.size === 0) {
@@ -58,24 +59,26 @@ export const i18n = (key: string, params?: Params): string | JSX.Element => {
 
   for (let i = 0; i < codes.length; i++) {
     const code = codes[i];
-    const l10n = l10ns.get(code);
-    if (l10n && (!isAlwaysFallback || l10n[key])) {
-      try {
-        return subParams(key, l10n[key], params);
-      } catch (err) {
-        let hasElements = false;
-        const prefix = isTestMode ? 'TEST' : `I18N-MISSING(${code})`;
-        const comps: Array<string | JSX.Element> = [`[${prefix}:${key}]`];
-        if (params) {
-          Object.keys(params).forEach(k => {
-            const p = params[k];
-            if (typeof p === 'function') {
-              comps.push(<Fragment key={k}>{p(`[${prefix}:${key}--${k}]`)}</Fragment>);
-              hasElements = true;
-            }
-          });
+    if (!allowedLanguages || allowedLanguages.includes(code)) {
+      const l10n = l10ns.get(code);
+      if (l10n && (!isAlwaysFallback || l10n[key])) {
+        try {
+          return subParams(key, l10n[key], params);
+        } catch (err) {
+          let hasElements = false;
+          const prefix = isTestMode ? 'TEST' : `I18N-MISSING(${code})`;
+          const comps: Array<string | JSX.Element> = [`[${prefix}:${key}]`];
+          if (params) {
+            Object.keys(params).forEach(k => {
+              const p = params[k];
+              if (typeof p === 'function') {
+                comps.push(<Fragment key={k}>{p(`[${prefix}:${key}--${k}]`)}</Fragment>);
+                hasElements = true;
+              }
+            });
+          }
+          return hasElements ? <>{comps}</> : comps.join('');
         }
-        return hasElements ? <>{comps}</> : comps.join('');
       }
     }
   }
@@ -146,12 +149,25 @@ const subParams = (key: string, text?: string, params: Params = {}): string | JS
   return text;
 };
 
+const { Provider, Consumer } = createContext<I18nContextProps>({});
+
+interface I18nContextProps {
+  allowedLanguages?: string[];
+}
+
+export const I18nContext: FC<I18nContextProps> = ({ children, allowedLanguages }) => (
+  <Provider value={{ allowedLanguages }}>{children}</Provider>
+);
+
 interface Props {
   name: string;
   children?: ReactNode;
   params?: Params;
 }
 
-export const I18n: FC<Props> = ({ name, children, params }) => <>{i18n(name, { children, ...params })}</>;
+export const I18n: FC<Props> = ({ name, children, params }) => (
+  <Consumer>{context => i18n(name, { children, ...params }, context)}</Consumer>
+);
+
 export const i18nx = (key: string, params?: Params): JSX.Element => i18n(key, params) as JSX.Element;
 export const i18ns = (key: string, params?: Params): string => i18n(key, params) as string;
