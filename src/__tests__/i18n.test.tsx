@@ -1,18 +1,18 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import { render } from '@testing-library/react';
-import React from 'react';
+import React, { FC } from 'react';
 
 import {
   addL10n,
   I18n,
-  i18n,
   I18nContext,
   i18ns,
-  i18nx,
   setAlwaysFallback,
   setDefaultLanguages,
   setTestMode,
+  withI18n,
+  WithI18nProps,
 } from '..';
 
 addL10n(
@@ -46,7 +46,7 @@ describe('i18n', () => {
   it('works with a string asset using the i18n function', () => {
     const result = render(
       <div>
-        <div data-testid="result">{i18n('big-thing')}</div>
+        <div data-testid="result">{i18ns('big-thing')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
@@ -55,8 +55,8 @@ describe('i18n', () => {
   it('works with a parameterized string asset using the i18n function', () => {
     const result = render(
       <div>
-        <div data-testid="result1">{i18n('dynamic-big-thing', { thing: 'house' })}</div>
-        <div data-testid="result2">{i18n('dynamic-big-obj', { obj: <b>bubba</b> })}</div>
+        <div data-testid="result1">{i18ns('dynamic-big-thing', { thing: 'house' })}</div>
+        <div data-testid="result2">{i18ns('dynamic-big-obj', { obj: <b>bubba</b> })}</div>
       </div>,
     );
     expect(result.getByTestId('result1').textContent).toBe('The house is big');
@@ -65,7 +65,7 @@ describe('i18n', () => {
   it('works with a parameterized string asset that has functions using the i18n function', () => {
     const result = render(
       <div>
-        <div data-testid="result">{i18n('func-big-thing', { quote: text => `"${text}"` })}</div>
+        <div data-testid="result">{i18ns('func-big-thing', { quote: text => `"${text}"` })}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('The "nice car" is big');
@@ -96,7 +96,7 @@ describe('i18n', () => {
   it('inserts a missing asset error when the key is not found', () => {
     const result = render(
       <div>
-        <div data-testid="result">{i18n('not-there')}</div>
+        <div data-testid="result">{i18ns('not-there')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(en):not-there]');
@@ -106,7 +106,7 @@ describe('i18n', () => {
     setDefaultLanguages(['pt']);
     const result = render(
       <div>
-        <div data-testid="result">{i18nx('big-thing')}</div>
+        <div data-testid="result">{i18ns('big-thing')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
@@ -116,7 +116,7 @@ describe('i18n', () => {
     setDefaultLanguages(['fr']);
     const result = render(
       <div>
-        <div data-testid="result">{i18n('with-children')}</div>
+        <div data-testid="result">{i18ns('with-children')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(fr):with-children]');
@@ -127,7 +127,7 @@ describe('i18n', () => {
     const result = render(
       <div>
         <div data-testid="result1">{i18ns('big-thing')}</div>
-        <div data-testid="result2">{i18n('func-big-thing', { quote: text => `<<<${text}>>>` })}</div>
+        <div data-testid="result2">{i18ns('func-big-thing', { quote: text => `<<<${text}>>>` })}</div>
       </div>,
     );
     expect(result.getByTestId('result1').textContent).toBe('[TEST:big-thing]');
@@ -228,6 +228,65 @@ describe('i18n - context', () => {
           <I18nContext>
             <div data-testid="result2">
               <I18n name="big-thing" />
+            </div>
+          </I18nContext>
+        </div>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('The thing is big');
+    expect(result.getByTestId('result2').textContent).toBe('Le chose est grand');
+  });
+});
+
+describe('i18n - withI18n HOC', () => {
+  beforeAll(() => {
+    setTestMode(false);
+    setDefaultLanguages(['fr', 'en']);
+  });
+
+  interface CompProps extends WithI18nProps {
+    name: string;
+  }
+
+  const Comp: FC<CompProps> = ({ i18n, name }) => <div>{i18n(name)}</div>;
+  const I18nComp = withI18n(Comp);
+
+  it('should render the highest priority language if no allowedLanguages set', () => {
+    const result = render(
+      <I18nContext>
+        <div>
+          <div data-testid="result1">
+            <I18nComp name="big-thing" />
+          </div>
+        </div>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('Le chose est grand');
+  });
+
+  it('should render the highest priority language in allowedLanguages if set', () => {
+    const result = render(
+      <I18nContext allowedLanguages={['en']}>
+        <div>
+          <div data-testid="result1">
+            <I18nComp name="big-thing" />
+          </div>
+        </div>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('The thing is big');
+  });
+
+  it('should render based on the nearest context ancestor', () => {
+    const result = render(
+      <I18nContext allowedLanguages={['en']}>
+        <div>
+          <div data-testid="result1">
+            <I18nComp name="big-thing" />
+          </div>
+          <I18nContext>
+            <div data-testid="result2">
+              <I18nComp name="big-thing" />
             </div>
           </I18nContext>
         </div>

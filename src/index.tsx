@@ -1,5 +1,5 @@
 import { createLogger } from '@phnq/log';
-import React, { createContext, FC, Fragment, ReactNode } from 'react';
+import React, { ComponentType, createContext, FC, Fragment, ReactNode } from 'react';
 
 const log = createLogger('@phnq/i18n');
 
@@ -18,7 +18,7 @@ export interface L10n {
   [key: string]: string;
 }
 
-type FuncParam = (arg: string | number) => JSX.Element;
+type FuncParam = (arg: string | number) => ReactNode;
 
 export interface Params {
   [key: string]: string | number | FuncParam | ReactNode;
@@ -47,7 +47,7 @@ export const setDefaultLanguages = (codes: readonly string[]) => {
   defaultCodes = [...new Set(codes.concat(codes.map(c => c.split('-')[0])))];
 };
 
-export const i18n = (key: string, params?: Params, context?: I18nContextProps): string | JSX.Element => {
+const i18n = (key: string, params?: Params, context?: I18nContextProps): ReactNode => {
   const { allowedLanguages } = context || {};
   let codes = defaultCodes;
 
@@ -67,7 +67,7 @@ export const i18n = (key: string, params?: Params, context?: I18nContextProps): 
         } catch (err) {
           let hasElements = false;
           const prefix = isTestMode ? 'TEST' : `I18N-MISSING(${code})`;
-          const comps: Array<string | JSX.Element> = [`[${prefix}:${key}]`];
+          const comps: ReactNode[] = [`[${prefix}:${key}]`];
           if (params) {
             Object.keys(params).forEach(k => {
               const p = params[k];
@@ -92,7 +92,7 @@ const isReactElement = (val: any) => val && typeof val === 'object' && (val as a
 const PARAMS_REGEX = /\{([^}]+)}/g;
 const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
 
-const subParams = (key: string, text?: string, params: Params = {}): string | JSX.Element => {
+const subParams = (key: string, text?: string, params: Params = {}): ReactNode => {
   if (!text || isTestMode) {
     throw new Error('missing asset or test env');
   }
@@ -101,7 +101,7 @@ const subParams = (key: string, text?: string, params: Params = {}): string | JS
 
   if (m) {
     let hasElements = false;
-    const comps: Array<string | JSX.Element> = [];
+    const comps: ReactNode[] = [];
     let i = 0;
     while (m) {
       comps.push(text.substring(i, m.index));
@@ -124,7 +124,7 @@ const subParams = (key: string, text?: string, params: Params = {}): string | JS
       } else {
         const val = params[param];
         if (isReactElement(val)) {
-          comps.push(<Fragment key={param}>{val as JSX.Element}</Fragment>);
+          comps.push(<Fragment key={param}>{val}</Fragment>);
           hasElements = true;
         } else {
           switch (val) {
@@ -169,5 +169,15 @@ export const I18n: FC<Props> = ({ name, children, params }) => (
   <Consumer>{context => i18n(name, { children, ...params }, context)}</Consumer>
 );
 
-export const i18nx = (key: string, params?: Params): JSX.Element => i18n(key, params) as JSX.Element;
-export const i18ns = (key: string, params?: Params): string => i18n(key, params) as string;
+export const i18ns = (key: string, params?: Params) => i18n(key, params) as string;
+
+export interface WithI18nProps {
+  i18n(key: string, params?: Params): ReactNode;
+}
+
+export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: ComponentType<T>) =>
+  ((props: T) => (
+    <Consumer>
+      {context => <Wrapped {...props} i18n={(key: string, params?: Params) => i18n(key, params, context)} />}
+    </Consumer>
+  )) as FC<Omit<T, keyof WithI18nProps>>;
