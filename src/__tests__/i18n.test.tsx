@@ -217,4 +217,23 @@ describe('i18n - context', () => {
     );
     expect(result.getByTestId('result1').textContent).toBe('The thing is big');
   });
+
+  it('should render based on the nearest context ancestor', () => {
+    const result = render(
+      <I18nContext allowedLanguages={['en']}>
+        <div>
+          <div data-testid="result1">
+            <I18n name="big-thing" />
+          </div>
+          <I18nContext>
+            <div data-testid="result2">
+              <I18n name="big-thing" />
+            </div>
+          </I18nContext>
+        </div>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('The thing is big');
+    expect(result.getByTestId('result2').textContent).toBe('Le chose est grand');
+  });
 });
