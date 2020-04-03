@@ -173,11 +173,18 @@ export const i18ns = (key: string, params?: Params) => i18n(key, params) as stri
 
 export interface WithI18nProps {
   i18n(key: string, params?: Params): ReactNode;
+  i18ns(key: string, params?: Params): string;
 }
 
 export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: ComponentType<T>) =>
   ((props: T) => (
     <Consumer>
-      {context => <Wrapped {...props} i18n={(key: string, params?: Params) => i18n(key, params, context)} />}
+      {context => (
+        <Wrapped
+          {...props}
+          i18n={(key: string, params?: Params) => i18n(key, params, context)}
+          i18ns={(key: string, params?: Params) => i18n(key, params, context)}
+        />
+      )}
     </Consumer>
   )) as FC<Omit<T, keyof WithI18nProps>>;
