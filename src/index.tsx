@@ -171,9 +171,12 @@ export const I18n: FC<Props> = ({ name, children, params }) => (
 
 export const i18ns = (key: string, params?: Params) => i18n(key, params) as string;
 
+export type I18nFn = (key: string, params?: Params) => ReactNode;
+export type I18nsFn = (key: string, params?: Params) => string;
+
 export interface WithI18nProps {
-  i18n(key: string, params?: Params): ReactNode;
-  i18ns(key: string, params?: Params): string;
+  i18n: I18nFn;
+  i18ns: I18nsFn;
 }
 
 export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: ComponentType<T>) =>
