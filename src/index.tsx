@@ -169,7 +169,7 @@ export const I18n: FC<Props> = ({ name, children, params }) => (
   <Consumer>{context => i18n(name, { children, ...params }, context)}</Consumer>
 );
 
-export const i18ns = (key: string, params?: Params) => i18n(key, params) as string;
+export const i18nsNoContext = (key: string, params?: Params) => i18n(key, params) as string;
 
 export type I18nFn = (key: string, params?: Params) => ReactNode;
 export type I18nsFn = (key: string, params?: Params) => string;

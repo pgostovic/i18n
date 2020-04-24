@@ -7,7 +7,7 @@ import {
   addL10n,
   I18n,
   I18nContext,
-  i18ns,
+  i18nsNoContext,
   setAlwaysFallback,
   setDefaultLanguages,
   setTestMode,
@@ -46,7 +46,7 @@ describe('i18n', () => {
   it('works with a string asset using the i18n function', () => {
     const result = render(
       <div>
-        <div data-testid="result">{i18ns('big-thing')}</div>
+        <div data-testid="result">{i18nsNoContext('big-thing')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
@@ -55,8 +55,8 @@ describe('i18n', () => {
   it('works with a parameterized string asset using the i18n function', () => {
     const result = render(
       <div>
-        <div data-testid="result1">{i18ns('dynamic-big-thing', { thing: 'house' })}</div>
-        <div data-testid="result2">{i18ns('dynamic-big-obj', { obj: <b>bubba</b> })}</div>
+        <div data-testid="result1">{i18nsNoContext('dynamic-big-thing', { thing: 'house' })}</div>
+        <div data-testid="result2">{i18nsNoContext('dynamic-big-obj', { obj: <b>bubba</b> })}</div>
       </div>,
     );
     expect(result.getByTestId('result1').textContent).toBe('The house is big');
@@ -65,7 +65,7 @@ describe('i18n', () => {
   it('works with a parameterized string asset that has functions using the i18n function', () => {
     const result = render(
       <div>
-        <div data-testid="result">{i18ns('func-big-thing', { quote: text => `"${text}"` })}</div>
+        <div data-testid="result">{i18nsNoContext('func-big-thing', { quote: text => `"${text}"` })}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('The "nice car" is big');
@@ -96,7 +96,7 @@ describe('i18n', () => {
   it('inserts a missing asset error when the key is not found', () => {
     const result = render(
       <div>
-        <div data-testid="result">{i18ns('not-there')}</div>
+        <div data-testid="result">{i18nsNoContext('not-there')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(en):not-there]');
@@ -106,7 +106,7 @@ describe('i18n', () => {
     setDefaultLanguages(['pt']);
     const result = render(
       <div>
-        <div data-testid="result">{i18ns('big-thing')}</div>
+        <div data-testid="result">{i18nsNoContext('big-thing')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
@@ -116,7 +116,7 @@ describe('i18n', () => {
     setDefaultLanguages(['fr']);
     const result = render(
       <div>
-        <div data-testid="result">{i18ns('with-children')}</div>
+        <div data-testid="result">{i18nsNoContext('with-children')}</div>
       </div>,
     );
     expect(result.getByTestId('result').textContent).toBe('[I18N-MISSING(fr):with-children]');
@@ -126,8 +126,8 @@ describe('i18n', () => {
     setTestMode(true);
     const result = render(
       <div>
-        <div data-testid="result1">{i18ns('big-thing')}</div>
-        <div data-testid="result2">{i18ns('func-big-thing', { quote: text => `<<<${text}>>>` })}</div>
+        <div data-testid="result1">{i18nsNoContext('big-thing')}</div>
+        <div data-testid="result2">{i18nsNoContext('func-big-thing', { quote: text => `<<<${text}>>>` })}</div>
       </div>,
     );
     expect(result.getByTestId('result1').textContent).toBe('[TEST:big-thing]');
@@ -135,34 +135,48 @@ describe('i18n', () => {
   });
 
   it('should substitute null, undefined and unspecified parameters with nothing', () => {
-    expect(i18ns('multiple-params', { name: 'Patrick', age: '' })).toBe('My name is Patrick and I am  years old');
-    expect(i18ns('multiple-params', { name: 'Patrick', age: null })).toBe('My name is Patrick and I am  years old');
-    expect(i18ns('multiple-params', { name: 'Patrick', age: undefined })).toBe(
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick', age: '' })).toBe(
       'My name is Patrick and I am  years old',
     );
-    expect(i18ns('multiple-params', { name: 'Patrick' })).toBe('My name is Patrick and I am  years old');
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick', age: null })).toBe(
+      'My name is Patrick and I am  years old',
+    );
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick', age: undefined })).toBe(
+      'My name is Patrick and I am  years old',
+    );
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick' })).toBe('My name is Patrick and I am  years old');
   });
 
   it('should render 0 and NaN as is', () => {
-    expect(i18ns('multiple-params', { name: 'Patrick', age: 0 })).toBe('My name is Patrick and I am 0 years old');
-    expect(i18ns('multiple-params', { name: 'Patrick', age: NaN })).toBe('My name is Patrick and I am NaN years old');
-    expect(i18ns('multiple-params', { name: 'Patrick', age: 0 / 0 })).toBe('My name is Patrick and I am NaN years old');
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick', age: 0 })).toBe(
+      'My name is Patrick and I am 0 years old',
+    );
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick', age: NaN })).toBe(
+      'My name is Patrick and I am NaN years old',
+    );
+    expect(i18nsNoContext('multiple-params', { name: 'Patrick', age: 0 / 0 })).toBe(
+      'My name is Patrick and I am NaN years old',
+    );
   });
 
   it('should work properly for various combinations of "blank" parameters', () => {
-    expect(i18ns('common.dropdown.selectedFraction')).toBe('(/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: 5 })).toBe('(5/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { denominator: 7 })).toBe('(/7 selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: 5, denominator: 7 })).toBe('(5/7 selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: null })).toBe('(/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { denominator: null })).toBe('(/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: null, denominator: null })).toBe('(/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: undefined })).toBe('(/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { denominator: undefined })).toBe('(/ selected)');
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: undefined, denominator: undefined })).toBe(
+    expect(i18nsNoContext('common.dropdown.selectedFraction')).toBe('(/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: 5 })).toBe('(5/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { denominator: 7 })).toBe('(/7 selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: 5, denominator: 7 })).toBe('(5/7 selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: null })).toBe('(/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { denominator: null })).toBe('(/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: null, denominator: null })).toBe(
       '(/ selected)',
     );
-    expect(i18ns('common.dropdown.selectedFraction', { numerator: 9, denominator: undefined })).toBe('(9/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: undefined })).toBe('(/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { denominator: undefined })).toBe('(/ selected)');
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: undefined, denominator: undefined })).toBe(
+      '(/ selected)',
+    );
+    expect(i18nsNoContext('common.dropdown.selectedFraction', { numerator: 9, denominator: undefined })).toBe(
+      '(9/ selected)',
+    );
   });
 });
 
@@ -178,11 +192,11 @@ describe('i18n - multiple languages', () => {
   });
 
   it('renders the highest priority language if key exists', () => {
-    expect(i18ns('big-thing')).toBe('Le chose est grand');
+    expect(i18nsNoContext('big-thing')).toBe('Le chose est grand');
   });
 
   it('renders a lower priority language', () => {
-    expect(i18ns('english-only')).toBe('Only English');
+    expect(i18nsNoContext('english-only')).toBe('Only English');
   });
 });
 
