@@ -42,6 +42,8 @@
   },
   "dependencies": {
     "@phnq/log": "^1.1.4",
+    "@types/cls-hooked": "^4.3.0",
+    "cls-hooked": "^4.2.2",
     "react": "^16.9.0"
   }
 }
