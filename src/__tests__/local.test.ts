@@ -1,7 +1,6 @@
-import { addL10n } from '../l10n';
 import { getI18nContext, i18ns, setI18nContext } from '../local';
 
-addL10n('en', {
+const enStrings = {
   'big-thing': 'The thing is big',
   'dynamic-big-thing': 'The {thing} is big',
   'dynamic-big-obj': 'The "{obj}" is big',
@@ -10,14 +9,19 @@ addL10n('en', {
   'multiple-params': 'My name is {name} and I am {age} years old',
   'common.dropdown.selectedFraction': '({numerator}/{denominator} selected)',
   'english-only': 'Only English',
-});
+};
 
-addL10n('fr', {
+const frStrings = {
   'big-thing': 'Le chose est grand',
   'dynamic-big-thing': 'Le {thing} est grand',
   'dynamic-big-obj': 'Le {obj} est grand',
   'func-big-thing': 'Le {quote(choses)} est grand',
-});
+};
+
+const l10ns = {
+  en: enStrings,
+  fr: frStrings,
+};
 
 describe('Local context', () => {
   it('should throw if not context is set', () => {
@@ -31,22 +35,22 @@ describe('Local context', () => {
   });
 
   it('should return the correct asset (en)', async () => {
-    await setI18nContext({ acceptLangs: ['en'] });
+    await setI18nContext({ acceptLangs: ['en'], l10ns });
     expect(i18ns('big-thing')).toBe('The thing is big');
   });
 
   it('should return the correct asset (fr)', async () => {
-    await setI18nContext({ acceptLangs: ['fr'] });
+    await setI18nContext({ acceptLangs: ['fr'], l10ns });
     expect(i18ns('big-thing')).toBe('Le chose est grand');
   });
 
   it('should return the correct asset from function', async () => {
-    await setI18nContext({ acceptLangs: ['fr'] });
+    await setI18nContext({ acceptLangs: ['fr'], l10ns });
     expect(getI18nVal('big-thing')).toBe('Le chose est grand');
   });
 
   it('should return the correct asset from async function', async () => {
-    await setI18nContext({ acceptLangs: ['fr'] });
+    await setI18nContext({ acceptLangs: ['fr'], l10ns });
     expect(await getI18nValAsync('big-thing')).toBe('Le chose est grand');
   });
 });

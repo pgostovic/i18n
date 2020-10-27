@@ -1,11 +1,10 @@
 import { Context } from '../context';
 import { i18n, Params } from '../i18n';
-import { addL10n } from '../l10n';
 
 export const i18ns = (key: string, params: Params<string | number | null | undefined>, context?: Context) =>
   i18n(key, params, context).join('');
 
-addL10n('en', {
+const enStrings = {
   'big-thing': 'The thing is big',
   'dynamic-big-thing': 'The {thing} is big',
   'dynamic-big-obj': 'The "{obj}" is big',
@@ -14,18 +13,23 @@ addL10n('en', {
   'multiple-params': 'My name is {name} and I am {age} years old',
   'common.dropdown.selectedFraction': '({numerator}/{denominator} selected)',
   'english-only': 'Only English',
-});
+};
 
-addL10n('fr', {
+const frStrings = {
   'big-thing': 'Le chose est grand',
   'dynamic-big-thing': 'Le {thing} est grand',
   'dynamic-big-obj': 'Le {obj} est grand',
   'func-big-thing': 'Le {quote(choses)} est grand',
-});
+};
 
-const enCtx = { acceptLangs: ['en'] };
-const frCtx = { acceptLangs: ['fr'] };
-const ptCtx = { acceptLangs: ['pt'] };
+const l10ns = {
+  en: enStrings,
+  fr: frStrings,
+};
+
+const enCtx = { acceptLangs: ['en'], l10ns };
+const frCtx = { acceptLangs: ['fr'], l10ns };
+const ptCtx = { acceptLangs: ['pt'], l10ns };
 
 describe('Basic Asset Lookup and fallback', () => {
   it('returns the correct result for the specified langugage', () => {

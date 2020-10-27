@@ -1,5 +1,4 @@
 import { Context, getEffectiveContext } from './context';
-import { l10ns } from './l10n';
 
 export type Token<T> = T | string | number | FuncParam<T>;
 
@@ -14,12 +13,12 @@ const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
 
 export const i18n = <T = unknown>(key: string, params: Params<T>, context?: Context): Token<T>[] => {
   const effectiveContext = getEffectiveContext(context);
-  const { acceptLangs, permitLangs, allowFallback = false } = effectiveContext;
+  const { acceptLangs, permitLangs, allowFallback = false, l10ns } = effectiveContext;
 
   for (let i = 0; i < acceptLangs.length; i++) {
     const lang = acceptLangs[i];
     if (!permitLangs || permitLangs.has(lang)) {
-      const l10n = l10ns.get(lang);
+      const l10n = l10ns[lang];
       if (l10n) {
         const val = l10n[key];
         if (val) {

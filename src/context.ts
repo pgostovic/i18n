@@ -1,5 +1,9 @@
 import defaultAcceptLangs from './acceptLangs';
 
+export interface L10n {
+  [key: string]: string;
+}
+
 export interface Context {
   /**
    * The user's langugages in order of preference.
@@ -23,9 +27,24 @@ export interface Context {
    * Note: default is 'en'.
    */
   defaultLang?: string;
+
+  /**
+   * The strings for the supported languages.
+   * {
+   *    "en": {
+   *      "greeting": "Hello"
+   *    },
+   *    "fr": {
+   *      "greeting": "Bonjour"
+   *    }
+   * }
+   */
+  l10ns: {
+    [key: string]: L10n;
+  };
 }
 
-const DEFAULT_CONTEXT: Context = { acceptLangs: defaultAcceptLangs, defaultLang: 'en' };
+const DEFAULT_CONTEXT: Context = { acceptLangs: defaultAcceptLangs, defaultLang: 'en', l10ns: {} };
 
 export const getEffectiveContext = (context: Partial<Context> = {}): Context => {
   const effectiveContext = { ...DEFAULT_CONTEXT, ...context };

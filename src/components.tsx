@@ -1,10 +1,12 @@
-import React, { ComponentType, createContext, FC, Fragment, ReactNode } from 'react';
+import React, { ComponentType, createContext, FC, Fragment, ReactNode, useContext } from 'react';
 
 import defaultAcceptLangs from './acceptLangs';
 import { Context } from './context';
 import { i18n, Params, Token } from './i18n';
 
-const { Provider, Consumer } = createContext<Context>({ acceptLangs: defaultAcceptLangs });
+const CompoContext = createContext<Context>({ acceptLangs: defaultAcceptLangs, l10ns: {} });
+
+const { Consumer, Provider } = CompoContext;
 
 export const I18nContext: FC<Partial<Context>> = ({
   children,
@@ -12,6 +14,7 @@ export const I18nContext: FC<Partial<Context>> = ({
   permitLangs,
   allowFallback,
   defaultLang,
+  l10ns,
 }) => (
   <Consumer>
     {context => (
@@ -21,6 +24,7 @@ export const I18nContext: FC<Partial<Context>> = ({
           permitLangs: permitLangs || context.permitLangs,
           allowFallback: allowFallback || context.allowFallback,
           defaultLang: defaultLang || context.defaultLang,
+          l10ns: l10ns || context.l10ns,
         }}
       >
         {children}
@@ -62,4 +66,9 @@ const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> =>
     return <Fragment key={i}>{token}</Fragment>;
   }
   return token;
+};
+
+export const useI18n = (): WithI18nProps => {
+  const context = useContext(CompoContext);
+  return { i18ns: (key: string, params?: Params<string | number>) => i18n(key, params || {}, context).join('') };
 };
