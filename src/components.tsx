@@ -43,7 +43,7 @@ export const I18n: FC<I18nProps> = ({ name, children, params }) => (
   <Consumer>{context => i18n(name, { children, ...params }, context).map(addKeyIfNeeded)}</Consumer>
 );
 
-export type I18nsFn = (key: string, params?: Params<string | number>) => string;
+export type I18nsFn = (key: string, params?: Params<string | number | undefined>) => string;
 
 export interface WithI18nProps {
   i18ns: I18nsFn;
@@ -70,5 +70,7 @@ const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> =>
 
 export const useI18n = (): WithI18nProps => {
   const context = useContext(CompoContext);
-  return { i18ns: (key: string, params?: Params<string | number>) => i18n(key, params || {}, context).join('') };
+  return {
+    i18ns: (key: string, params?: Params<string | number | undefined>) => i18n(key, params || {}, context).join(''),
+  };
 };
