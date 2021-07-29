@@ -37,16 +37,20 @@ interface I18nProps {
   name: string;
   children?: ReactNode;
   params?: Params<ReactNode>;
+  silentMissing?: boolean;
 }
 
-export const I18n: FC<I18nProps> = ({ name, children, params }) => (
-  <Consumer>{context => i18n(name, { children, ...params }, context).map(addKeyIfNeeded)}</Consumer>
+export const I18n: FC<I18nProps> = ({ name, children, params, silentMissing }) => (
+  <Consumer>{context => i18n(name, { children, ...params }, context, silentMissing).map(addKeyIfNeeded)}</Consumer>
 );
 
-export type I18nsFn = (key: string, params?: Params<string | number | undefined>) => string;
+export type I18nsFn = (key: string, params?: Params<string | number | undefined>, silentMissing?: boolean) => string;
+
+export type I18nsFnSilent = (key: string, params?: Params<string | number | undefined>) => string;
 
 export interface WithI18nProps {
   i18ns: I18nsFn;
+  i18nsSilent: I18nsFnSilent;
 }
 
 export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: ComponentType<T>) =>
@@ -55,7 +59,12 @@ export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: Compo
       {context => (
         <Wrapped
           {...props}
-          i18ns={(key: string, params?: Params<string | number>) => i18n(key, params || {}, context).join('')}
+          i18ns={(key: string, params?: Params<string | number>, silentMissing = false) =>
+            i18n(key, params || {}, context, silentMissing).join('')
+          }
+          i18nsSilent={(key: string, params?: Params<string | number>) =>
+            i18n(key, params || {}, context, true).join('')
+          }
         />
       )}
     </Consumer>
@@ -71,6 +80,11 @@ const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> =>
 export const useI18n = (): WithI18nProps => {
   const context = useContext(CompoContext);
   return {
-    i18ns: (key: string, params?: Params<string | number | undefined>) => i18n(key, params || {}, context).join(''),
+    i18ns(key: string, params?: Params<string | number | undefined>, silentMissing = false) {
+      return i18n(key, params || {}, context, silentMissing).join('');
+    },
+    i18nsSilent(key: string, params?: Params<string | number | undefined>) {
+      return i18n(key, params || {}, context, true).join('');
+    },
   };
 };

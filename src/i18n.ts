@@ -11,7 +11,12 @@ export interface Params<T> {
 const PARAMS_REGEX = /\{([^}]+)}/g;
 const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
 
-export const i18n = <T = unknown>(key: string, params: Params<T>, context?: Context): Token<T>[] => {
+export const i18n = <T = unknown>(
+  key: string,
+  params: Params<T>,
+  context?: Context,
+  silentMissing = false,
+): Token<T>[] => {
   const effectiveContext = getEffectiveContext(context);
   const { acceptLangs, permitLangs, allowFallback = false, l10ns } = effectiveContext;
 
@@ -24,13 +29,13 @@ export const i18n = <T = unknown>(key: string, params: Params<T>, context?: Cont
         if (val) {
           return parameterize(key, val, params);
         } else if (!allowFallback) {
-          return missing(key, effectiveContext);
+          return missing(key, effectiveContext, silentMissing);
         }
       }
     }
   }
 
-  return missing(key, effectiveContext);
+  return missing(key, effectiveContext, silentMissing);
 };
 
 const parameterize = <T>(key: string, text: string, params: Params<T>): Token<T>[] => {
@@ -66,6 +71,5 @@ const parameterize = <T>(key: string, text: string, params: Params<T>): Token<T>
   return tokens.filter(token => token !== null && token !== undefined);
 };
 
-const missing = <T = unknown>(key: string, { acceptLangs }: Context): Token<T>[] => [
-  `[I18N-MISSING(${acceptLangs.join(',')}):${key}]`,
-];
+const missing = <T = unknown>(key: string, { acceptLangs }: Context, silentMissing: boolean): Token<T>[] =>
+  silentMissing ? [] : [`[I18N-MISSING(${acceptLangs.join(',')}):${key}]`];

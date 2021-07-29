@@ -100,6 +100,11 @@ describe('withI18n HOC', () => {
   const Comp: FC<{ name: string } & WithI18nProps> = ({ i18ns, name }) => <div>{i18ns(name)}</div>;
   const I18nComp = withI18n(Comp);
 
+  const CompSilentMissing: FC<{ name: string } & WithI18nProps> = ({ i18nsSilent, name }) => (
+    <div>{i18nsSilent(name)}</div>
+  );
+  const I18nCompSilentMissing = withI18n(CompSilentMissing);
+
   it('renders an asset', () => {
     const result = render(
       <I18nContext l10ns={l10ns}>
@@ -107,10 +112,14 @@ describe('withI18n HOC', () => {
           <div data-testid="result">
             <I18nComp name="big-thing" />
           </div>
+          <div data-testid="resultMissingAsset">
+            <I18nCompSilentMissing name="no-such-message" />
+          </div>
         </div>
       </I18nContext>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
+    expect(result.getByTestId('resultMissingAsset').textContent).toBe('');
   });
 });
 
@@ -122,14 +131,23 @@ describe('useI18n', () => {
           <div data-testid="result">
             <SomeComp />
           </div>
+          <div data-testid="resultMissingAsset">
+            <SomeCompMissingAsset />
+          </div>
         </div>
       </I18nContext>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
+    expect(result.getByTestId('resultMissingAsset').textContent).toBe('');
   });
 });
 
 const SomeComp: FC = () => {
   const { i18ns } = useI18n();
   return <>{i18ns('big-thing')}</>;
+};
+
+const SomeCompMissingAsset: FC = () => {
+  const { i18nsSilent } = useI18n();
+  return <>{i18nsSilent('no-such-message')}</>;
 };

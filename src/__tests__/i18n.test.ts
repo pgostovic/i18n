@@ -1,8 +1,12 @@
 import { Context } from '../context';
 import { i18n, Params } from '../i18n';
 
-export const i18ns = (key: string, params: Params<string | number | null | undefined>, context?: Context) =>
-  i18n(key, params, context).join('');
+export const i18ns = (
+  key: string,
+  params: Params<string | number | null | undefined>,
+  context?: Context,
+  silentMissing = false,
+) => i18n(key, params, context, silentMissing).join('');
 
 const enStrings = {
   'big-thing': 'The thing is big',
@@ -55,6 +59,12 @@ describe('Basic Asset Lookup and fallback', () => {
 
   it('returns missing asset error when an l10n pack is found but the key is not - allowFallback set to false', () => {
     expect(i18ns('english-only', {}, frCtx)).toBe('[I18N-MISSING(fr,en):english-only]');
+  });
+});
+
+describe('Suppressed missing asset message', () => {
+  it('returns empty string for missing asset when showMissingMessage is false', () => {
+    expect(i18ns('non-existent', {}, enCtx, true)).toBe('');
   });
 });
 
