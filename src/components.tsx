@@ -51,6 +51,7 @@ export type I18nsFnSilent = (key: string, params?: Params<string | number | unde
 export interface WithI18nProps {
   i18ns: I18nsFn;
   i18nsSilent: I18nsFnSilent;
+  i18nContext: Context;
 }
 
 export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: ComponentType<T>) =>
@@ -65,6 +66,7 @@ export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: Compo
           i18nsSilent={(key: string, params?: Params<string | number>) =>
             i18n(key, params || {}, context, true).join('')
           }
+          i18nContext={context}
         />
       )}
     </Consumer>
@@ -86,5 +88,6 @@ export const useI18n = (): WithI18nProps => {
     i18nsSilent(key: string, params?: Params<string | number | undefined>) {
       return i18n(key, params || {}, context, true).join('');
     },
+    i18nContext: context,
   };
 };
