@@ -39,6 +39,7 @@
     "ts-node": "^8.3.0",
     "typescript": "^3.6.2"
   },
+  "peerDependencies": {},
   "dependencies": {
     "@phnq/log": "^1.1.4",
     "@types/cls-hooked": "^4.3.0",
