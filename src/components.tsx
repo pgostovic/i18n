@@ -70,7 +70,7 @@ export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: Compo
         />
       )}
     </Consumer>
-  )) as ComponentType<Omit<T, keyof WithI18nProps>>;
+  )) as FC<Omit<T, keyof WithI18nProps>>;
 
 const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> => {
   if (typeof token === 'object' && (token as { type?: string }).type) {
