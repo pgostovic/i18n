@@ -1,4 +1,4 @@
-import React, { ComponentType, createContext, FC, Fragment, ReactNode, useContext } from 'react';
+import React, { ComponentType, createContext, FC, Fragment, ReactNode, useCallback, useContext } from 'react';
 
 import defaultAcceptLangs from './acceptLangs';
 import { Context } from './context';
@@ -81,13 +81,21 @@ const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> =>
 
 export const useI18n = (): WithI18nProps => {
   const context = useContext(CompoContext);
+
+  const i18ns = useCallback(
+    (key: string, params?: Params<string | number | undefined>, silentMissing = false) =>
+      i18n(key, params || {}, context, silentMissing).join(''),
+    [context],
+  );
+
+  const i18nsSilent = useCallback(
+    (key: string, params?: Params<string | number | undefined>) => i18n(key, params || {}, context, true).join(''),
+    [context],
+  );
+
   return {
-    i18ns(key: string, params?: Params<string | number | undefined>, silentMissing = false) {
-      return i18n(key, params || {}, context, silentMissing).join('');
-    },
-    i18nsSilent(key: string, params?: Params<string | number | undefined>) {
-      return i18n(key, params || {}, context, true).join('');
-    },
+    i18ns,
+    i18nsSilent,
     i18nContext: context,
   };
 };
