@@ -79,7 +79,9 @@ const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> =>
   return token;
 };
 
-export const useI18n = (): WithI18nProps => {
+export const useI18nContext = () => useContext(CompoContext);
+
+export const useI18n = (): Omit<WithI18nProps, 'i18nContext'> => {
   const context = useContext(CompoContext);
 
   const i18ns = useCallback(
@@ -93,9 +95,5 @@ export const useI18n = (): WithI18nProps => {
     [context],
   );
 
-  return {
-    i18ns,
-    i18nsSilent,
-    i18nContext: context,
-  };
+  return { i18ns, i18nsSilent };
 };
