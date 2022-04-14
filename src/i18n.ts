@@ -9,7 +9,7 @@ export interface Params<T> {
 }
 
 const PARAMS_REGEX = /\{([^}]+)}/g;
-const FUNC_PARAM_REGEX = /(\w+)\(([\w\s]+)\)/;
+const FUNC_PARAM_REGEX = /(\w+)\(([^)]+)\)/;
 
 export const i18n = <T = unknown>(
   key: string,

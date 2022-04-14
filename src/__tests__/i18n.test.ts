@@ -12,7 +12,7 @@ const enStrings = {
   'big-thing': 'The thing is big',
   'dynamic-big-thing': 'The {thing} is big',
   'dynamic-big-obj': 'The "{obj}" is big',
-  'func-big-thing': 'The {quote(nice car)} is big',
+  'func-big-thing': 'The {quote(nice car, etc.)} is big',
   'with-children': 'This one has {children} dude',
   'multiple-params': 'My name is {name} and I am {age} years old',
   'common.dropdown.selectedFraction': '({numerator}/{denominator} selected)',
@@ -74,7 +74,9 @@ describe('Parameter Substitution', () => {
   });
 
   it('works with a parameterized string asset that has functions', () => {
-    expect(i18ns('func-big-thing', { quote: (text: string) => `"${text}"` }, enCtx)).toBe('The "nice car" is big');
+    expect(i18ns('func-big-thing', { quote: (text: string) => `"${text}"` }, enCtx)).toBe(
+      'The "nice car, etc." is big',
+    );
   });
 
   it('should substitute null, undefined and unspecified parameters with nothing', () => {
