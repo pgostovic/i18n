@@ -74,7 +74,7 @@ const parameterize = <T>(key: string, text: string, params: Params<T>): Token<T>
 const missing = <T = unknown>(key: string, { acceptLangs, onMissing }: Context, silentMissing: boolean): Token<T>[] => {
   const message = `[I18N-MISSING(${acceptLangs.join(',')}):${key}]`;
 
-  if (onMissing) {
+  if (!silentMissing && onMissing) {
     onMissing({ key, langs: acceptLangs, err: new Error(message) });
   }
 
