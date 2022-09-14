@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { Context } from '../context';
 import { i18n, Params } from '../i18n';
 

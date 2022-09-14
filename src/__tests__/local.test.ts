@@ -1,3 +1,7 @@
+/**
+ * @jest-environment jsdom
+ */
+
 import { getI18nContext, i18ns, setI18nContext } from '../local';
 
 const enStrings = {
