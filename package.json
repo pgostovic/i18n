@@ -31,11 +31,11 @@
     "eslint-plugin-prettier": "^3.1.0",
     "eslint-plugin-react": "^7.14.3",
     "eslint-plugin-simple-import-sort": "^4.0.0",
-    "jest": "^24.9.0",
+    "jest": "^29.0.3",
     "prettier": "^1.18.2",
     "react-dom": "^16.9.0",
     "rimraf": "^3.0.0",
-    "ts-jest": "^24.0.2",
+    "ts-jest": "^29.0.1",
     "ts-node": "^8.3.0",
     "typescript": "^3.6.2"
   },
