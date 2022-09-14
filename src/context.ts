@@ -42,6 +42,8 @@ export interface Context {
   l10ns: {
     [key: string]: L10n;
   };
+
+  onMissing?(info: { key: string; langs: readonly string[]; err: Error }): void;
 }
 
 const DEFAULT_CONTEXT: Context = { acceptLangs: defaultAcceptLangs, defaultLang: 'en', l10ns: {} };

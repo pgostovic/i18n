@@ -15,6 +15,7 @@ export const I18nContext: FC<Partial<Context>> = ({
   allowFallback,
   defaultLang,
   l10ns,
+  onMissing,
 }) => (
   <Consumer>
     {context => (
@@ -25,6 +26,7 @@ export const I18nContext: FC<Partial<Context>> = ({
           allowFallback: allowFallback || context.allowFallback,
           defaultLang: defaultLang || context.defaultLang,
           l10ns: l10ns || context.l10ns,
+          onMissing: onMissing || context.onMissing,
         }}
       >
         {children}
