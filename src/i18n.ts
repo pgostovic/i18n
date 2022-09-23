@@ -26,7 +26,7 @@ export const i18n = <T = unknown>(
       const l10n = l10ns[lang];
       if (l10n) {
         const val = l10n[key];
-        if (val) {
+        if (typeof val === 'string') {
           return parameterize(key, val, params);
         } else if (!allowFallback) {
           return missing(key, effectiveContext, silentMissing);
