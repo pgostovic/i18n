@@ -33,6 +33,13 @@ const l10ns = {
   fr: frStrings,
 };
 
+const l10nsOverride = {
+  en: {
+    bubba: 'Gump',
+    'english-only': 'Only English Override',
+  },
+};
+
 describe('<I18n />', () => {
   it('renders an asset', () => {
     const result = render(
@@ -97,6 +104,48 @@ describe('<I18nContext />', () => {
       </I18nContext>,
     );
     expect(result.getByTestId('result').textContent).toBe('The thing is big');
+  });
+
+  it('combines l10ns through nesting', () => {
+    const result = render(
+      <I18nContext acceptLangs={['en']} l10ns={l10ns}>
+        <I18nContext acceptLangs={['en']} l10ns={l10nsOverride}>
+          <div data-testid="result1">
+            <I18n name="big-thing" />
+          </div>
+          <div data-testid="result2">
+            <I18n name="bubba" />
+          </div>
+          <div data-testid="result3">
+            <I18n name="english-only" />
+          </div>
+        </I18nContext>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('The thing is big');
+    expect(result.getByTestId('result2').textContent).toBe('Gump');
+    expect(result.getByTestId('result3').textContent).toBe('Only English Override');
+  });
+
+  it('prevents combine l10ns through nesting with inheritL10ns={false}', () => {
+    const result = render(
+      <I18nContext acceptLangs={['en']} l10ns={l10ns}>
+        <I18nContext acceptLangs={['en']} l10ns={l10nsOverride} inheritL10ns={false}>
+          <div data-testid="result1">
+            <I18n name="big-thing" />
+          </div>
+          <div data-testid="result2">
+            <I18n name="bubba" />
+          </div>
+          <div data-testid="result3">
+            <I18n name="english-only" />
+          </div>
+        </I18nContext>
+      </I18nContext>,
+    );
+    expect(result.getByTestId('result1').textContent).toBe('[I18N-MISSING(en):big-thing]');
+    expect(result.getByTestId('result2').textContent).toBe('Gump');
+    expect(result.getByTestId('result3').textContent).toBe('Only English Override');
   });
 });
 

@@ -8,7 +8,7 @@ const CompoContext = createContext<Context>({ acceptLangs: defaultAcceptLangs, l
 
 const { Consumer, Provider } = CompoContext;
 
-export const I18nContext: FC<Partial<Context>> = ({
+export const I18nContext: FC<Partial<Context> & { inheritL10ns?: boolean }> = ({
   children,
   acceptLangs,
   permitLangs,
@@ -16,6 +16,7 @@ export const I18nContext: FC<Partial<Context>> = ({
   defaultLang,
   l10ns,
   onMissing,
+  inheritL10ns = true,
 }) => (
   <Consumer>
     {context => (
@@ -25,7 +26,7 @@ export const I18nContext: FC<Partial<Context>> = ({
           permitLangs: permitLangs || context.permitLangs,
           allowFallback: allowFallback || context.allowFallback,
           defaultLang: defaultLang || context.defaultLang,
-          l10ns: l10ns || context.l10ns,
+          l10ns: inheritL10ns ? combineL10ns(context.l10ns, l10ns) : l10ns || context.l10ns,
           onMissing: onMissing || context.onMissing,
         }}
       >
@@ -34,6 +35,16 @@ export const I18nContext: FC<Partial<Context>> = ({
     )}
   </Consumer>
 );
+
+const combineL10ns = (l10ns1: Context['l10ns'], l10ns2: Context['l10ns'] = {}): Context['l10ns'] => {
+  const combined = { ...l10ns1 };
+  for (const lang in l10ns2) {
+    if (l10ns2.hasOwnProperty(lang)) {
+      combined[lang] = { ...combined[lang], ...l10ns2[lang] };
+    }
+  }
+  return combined;
+};
 
 interface I18nProps {
   name: string;
