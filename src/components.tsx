@@ -1,4 +1,4 @@
-import React, { ComponentType, createContext, FC, Fragment, ReactNode, useCallback, useContext } from 'react';
+import React, { ComponentType, createContext, Fragment, ReactNode, useCallback, useContext } from 'react';
 
 import defaultAcceptLangs from './acceptLangs';
 import { Context } from './context';
@@ -8,7 +8,12 @@ const CompoContext = createContext<Context>({ acceptLangs: defaultAcceptLangs, l
 
 const { Consumer, Provider } = CompoContext;
 
-export const I18nContext: FC<Partial<Context> & { inheritL10ns?: boolean }> = ({
+interface I18nContextProps extends Partial<Context> {
+  inheritL10ns?: boolean;
+  children: ReactNode;
+}
+
+export const I18nContext = ({
   children,
   acceptLangs,
   permitLangs,
@@ -17,7 +22,7 @@ export const I18nContext: FC<Partial<Context> & { inheritL10ns?: boolean }> = ({
   l10ns,
   onMissing,
   inheritL10ns = true,
-}) => (
+}: I18nContextProps) => (
   <Consumer>
     {context => (
       <Provider
@@ -53,7 +58,7 @@ interface I18nProps {
   silentMissing?: boolean;
 }
 
-export const I18n: FC<I18nProps> = ({ name, children, params, silentMissing }) => (
+export const I18n = ({ name, children, params, silentMissing }: I18nProps) => (
   <Consumer>{context => i18n(name, { children, ...params }, context, silentMissing).map(addKeyIfNeeded)}</Consumer>
 );
 
@@ -83,11 +88,14 @@ export const withI18n = <T extends WithI18nProps = WithI18nProps>(Wrapped: Compo
         />
       )}
     </Consumer>
-  )) as FC<Omit<T, keyof WithI18nProps>>;
+  )) as (props: Omit<T, keyof WithI18nProps>) => JSX.Element;
 
-const addKeyIfNeeded = (token: Token<ReactNode>, i: number): Token<ReactNode> => {
+const addKeyIfNeeded = (token: Token<ReactNode>, i: number): ReactNode => {
   if (typeof token === 'object' && (token as { type?: string }).type) {
     return <Fragment key={i}>{token}</Fragment>;
+  }
+  if (typeof token === 'function') {
+    throw new Error('Illegal token type: function');
   }
   return token;
 };
