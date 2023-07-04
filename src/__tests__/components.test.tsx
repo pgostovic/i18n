@@ -40,7 +40,26 @@ const l10nsOverride = {
   },
 };
 
+const l10nsWithEmptyString = {
+  en: { ...enStrings, 'some-empty-string': '' },
+  fr: frStrings,
+};
+
 describe('<I18n />', () => {
+  it('throws an error when an empty L10n value is encountered', () => {
+    expect(() => {
+      render(
+        <I18nContext l10ns={l10nsWithEmptyString}>
+          <div>
+            <div data-testid="result">
+              <I18n name="big-thing" />
+            </div>
+          </div>
+        </I18nContext>,
+      );
+    }).toThrow('Empty string is not allowed');
+  });
+
   it('renders an asset', () => {
     const result = render(
       <I18nContext l10ns={l10ns}>

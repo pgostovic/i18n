@@ -48,6 +48,20 @@ const combineL10ns = (l10ns1: Context['l10ns'], l10ns2: Context['l10ns'] = {}): 
       combined[lang] = { ...combined[lang], ...l10ns2[lang] };
     }
   }
+
+  const empties: string[] = [];
+  Object.entries(combined).forEach(([lang, l10n]) => {
+    Object.entries(l10n).forEach(([key, val]) => {
+      if (val === '') {
+        empties.push([lang, key].join(':'));
+      }
+    });
+  });
+
+  if (Object.values(combined).some(l10n => Object.values(l10n).some(s => s === ''))) {
+    throw new Error(`Empty string is not allowed as an L10n value:${['', ...empties].join('\n>>>>> ')}`);
+  }
+
   return combined;
 };
 
